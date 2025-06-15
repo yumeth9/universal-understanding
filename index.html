@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journey Through the Universe</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        #canvas {
+            display: block;
+            margin: 0 auto;
+            background: radial-gradient(circle, #001122 0%, #000000 100%);
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #444;
+        }
+        
+        #info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #444;
+            max-width: 300px;
+        }
+        
+        button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background: #0088ff;
+        }
+        
+        .current-level {
+            background: #ff6600 !important;
+        }
+        
+        #speed-control {
+            margin: 10px 0;
+        }
+        
+        input[type="range"] {
+            width: 200px;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="1000" height="600"></canvas>
+    
+    <div id="controls">
+        <h3>🚀 Universe Explorer</h3>
+        <button id="earth" class="current-level">1. Earth</button>
+        <button id="solar">2. Solar System</button>
+        <button id="galaxy">3. Our Galaxy</button>
+        <button id="universe">4. Universe</button>
+        
+        <div id="speed-control">
+            <label>Animation Speed:</label><br>
+            <input type="range" id="speed" min="0.1" max="3" value="1" step="0.1">
+        </div>
+        
+        <button id="auto">🎬 Auto Tour</button>
+        <button id="pause">⏸️ Pause</button>
+    </div>
+    
+    <div id="info">
+        <h3 id="level-title">Planet Earth</h3>
+        <p id="level-description">Our home planet! Earth is the third planet from the Sun and the only known planet with life. It's about 12,742 km across.</p>
+        <div id="level-facts">
+            <strong>Cool Facts:</strong><br>
+            • 71% of Earth is covered by water<br>
+            • Home to over 8 billion people<br>
+            • Has one moon<br>
+            • Takes 365.25 days to orbit the Sun
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let currentLevel = 'earth';
+        let animationSpeed = 1;
+        let isPaused = false;
+        let autoTour = false;
+        let autoTourStep = 0;
+        let time = 0;
+        
+        // Make canvas responsive
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Level data with information for each scale
+        const levels = {
+            earth: {
+                title: "Planet Earth",
+                description: "Our home planet! Earth is the third planet from the Sun and the only known planet with life. It's about 12,742 km across.",
+                facts: [
+                    "71% of Earth is covered by water",
+                    "Home to over 8 billion people", 
+                    "Has one moon",
+                    "Takes 365.25 days to orbit the Sun"
+                ]
+            },
+            solar: {
+                title: "Our Solar System",
+                description: "The Sun and all the planets, moons, asteroids, and comets that orbit around it. Our solar system is huge - about 100,000 times wider than Earth!",
+                facts: [
+                    "8 planets orbit our Sun",
+                    "The Sun contains 99.86% of all the mass",
+                    "Jupiter is bigger than all other planets combined",
+                    "It would take 9 years to walk to the Sun!"
+                ]
+            },
+            galaxy: {
+                title: "The Milky Way Galaxy", 
+                description: "Our galaxy contains over 100 billion stars! Our solar system is just a tiny speck in one of the spiral arms.",
+                facts: [
+                    "100-400 billion stars in our galaxy",
+                    "Takes 200 million years for our solar system to orbit once",
+                    "About 100,000 light-years across",
+                    "Has a supermassive black hole at the center"
+                ]
+            },
+            universe: {
+                title: "The Observable Universe",
+                description: "Contains over 2 trillion galaxies! Each galaxy has billions of stars. The universe is so big that light from the farthest galaxies takes billions of years to reach us.",
+                facts: [
+                    "Over 2 trillion galaxies",
+                    "93 billion light-years across",
+                    "13.8 billion years old",
+                    "Still expanding and getting bigger!"
+                ]
+            }
+        };
+        
+        // Animation functions for each level
+        function drawEarth() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // Draw Earth
+            const earthRadius = 80 + Math.sin(time * 0.02) * 5;
+            
+            // Earth's glow
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, earthRadius + 20);
+            gradient.addColorStop(0, 'rgba(0, 100, 200, 0.3)');
+            gradient.addColorStop(1, 'rgba(0, 100, 200, 0)');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, earthRadius + 20, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Earth itself
+            ctx.fillStyle = '#4a90e2';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, earthRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Continents (simplified)
+            ctx.fillStyle = '#228b22';
+            for (let i = 0; i < 6; i++) {
+                const angle = (i * Math.PI * 2 / 6) + time * 0.01;
+                const x = centerX + Math.cos(angle) * (earthRadius * 0.6);
+                const y = centerY + Math.sin(angle) * (earthRadius * 0.6);
+                ctx.beginPath();
+                ctx.arc(x, y, earthRadius * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Atmosphere
+            ctx.strokeStyle = 'rgba(135, 206, 235, 0.5)';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, earthRadius + 5, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Moon
+            const moonDistance = 150;
+            const moonAngle = time * 0.03;
+            const moonX = centerX + Math.cos(moonAngle) * moonDistance;
+            const moonY = centerY + Math.sin(moonAngle) * moonDistance;
+            
+            ctx.fillStyle = '#c0c0c0';
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, 15, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawSolarSystem() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // Draw Sun
+            const sunRadius = 30;
+            const sunGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, sunRadius + 15);
+            sunGradient.addColorStop(0, '#ffff00');
+            sunGradient.addColorStop(0.7, '#ff8c00');
+            sunGradient.addColorStop(1, 'rgba(255, 140, 0, 0)');
+            
+            ctx.fillStyle = sunGradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, sunRadius + 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#ffff00';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, sunRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Planet data: [distance, size, color, speed]
+            const planets = [
+                [60, 3, '#8c7853', 0.08],   // Mercury
+                [80, 5, '#ffc649', 0.06],   // Venus  
+                [100, 6, '#4a90e2', 0.05],  // Earth
+                [130, 4, '#cd5c5c', 0.04],  // Mars
+                [180, 15, '#d2691e', 0.02], // Jupiter
+                [220, 12, '#fad5a5', 0.015],// Saturn
+                [250, 8, '#40e0d0', 0.01],  // Uranus
+                [280, 8, '#4169e1', 0.008]  // Neptune
+            ];
+            
+            // Draw orbital paths and planets
+            planets.forEach((planet, index) => {
+                const [distance, size, color, speed] = planet;
+                
+                // Orbital path
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, distance, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Planet position
+                const angle = time * speed;
+                const x = centerX + Math.cos(angle) * distance;
+                const y = centerY + Math.sin(angle) * distance;
+                
+                // Planet
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Special effects for some planets
+                if (index === 5) { // Saturn's rings
+                    ctx.strokeStyle = 'rgba(250, 213, 165, 0.7)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(x, y, size + 5, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            });
+            
+            // Asteroid belt
+            for (let i = 0; i < 50; i++) {
+                const angle = (i / 50) * Math.PI * 2 + time * 0.01;
+                const distance = 150 + Math.random() * 20;
+                const x = centerX + Math.cos(angle) * distance;
+                const y = centerY + Math.sin(angle) * distance;
+                
+                ctx.fillStyle = 'rgba(139, 69, 19, 0.6)';
+                ctx.beginPath();
+                ctx.arc(x, y, 1, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function drawGalaxy() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // Draw galaxy spiral arms
+            const armCount = 4;
+            const maxRadius = 200;
+            
+            for (let arm = 0; arm < armCount; arm++) {
+                const armAngle = (arm * Math.PI * 2 / armCount) + time * 0.005;
+                
+                for (let r = 20; r < maxRadius; r += 5) {
+                    const spiralTightness = 0.02;
+                    const angle = armAngle + r * spiralTightness;
+                    
+                    const x = centerX + Math.cos(angle) * r;
+                    const y = centerY + Math.sin(angle) * r;
+                    
+                    // Stars in spiral arms
+                    const brightness = Math.max(0, 1 - r / maxRadius);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${brightness * 0.8})`;
+                    
+                    for (let i = 0; i < 3; i++) {
+                        const offsetX = (Math.random() - 0.5) * 10;
+                        const offsetY = (Math.random() - 0.5) * 10;
+                        ctx.beginPath();
+                        ctx.arc(x + offsetX, y + offsetY, Math.random() * 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+            
+            // Central bulge
+            const bulgeGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 50);
+            bulgeGradient.addColorStop(0, 'rgba(255, 200, 100, 0.8)');
+            bulgeGradient.addColorStop(1, 'rgba(255, 200, 100, 0)');
+            
+            ctx.fillStyle = bulgeGradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 50, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Mark our solar system location
+            const ourAngle = Math.PI / 3 + time * 0.003;
+            const ourDistance = 120;
+            const ourX = centerX + Math.cos(ourAngle) * ourDistance;
+            const ourY = centerY + Math.sin(ourAngle) * ourDistance;
+            
+            ctx.strokeStyle = '#ffff00';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(ourX, ourY, 8, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#ffff00';
+            ctx.font = '14px Arial';
+            ctx.fillText('You are here!', ourX + 15, ourY - 10);
+        }
+        
+        function drawUniverse() {
+            // Draw many galaxies
+            const galaxyCount = 30;
+            
+            for (let i = 0; i < galaxyCount; i++) {
+                const angle = (i / galaxyCount) * Math.PI * 2 + time * 0.001;
+                const distance = 100 + (i % 5) * 80;
+                const x = canvas.width / 2 + Math.cos(angle) * distance;
+                const y = canvas.height / 2 + Math.sin(angle) * distance;
+                
+                // Make sure galaxies stay on screen
+                const clampedX = Math.max(30, Math.min(canvas.width - 30, x));
+                const clampedY = Math.max(30, Math.min(canvas.height - 30, y));
+                
+                drawMiniGalaxy(clampedX, clampedY, 15 + (i % 3) * 5, i);
+            }
+            
+            // Draw our galaxy bigger and highlighted
+            const ourGalaxyX = canvas.width / 2 + Math.cos(time * 0.002) * 150;
+            const ourGalaxyY = canvas.height / 2 + Math.sin(time * 0.002) * 150;
+            
+            ctx.strokeStyle = '#ffff00';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.arc(ourGalaxyX, ourGalaxyY, 35, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            drawMiniGalaxy(ourGalaxyX, ourGalaxyY, 25, -1);
+            
+            ctx.fillStyle = '#ffff00';
+            ctx.font = '12px Arial';
+            ctx.fillText('Our Galaxy', ourGalaxyX - 30, ourGalaxyY + 45);
+        }
+        
+        function drawMiniGalaxy(x, y, size, index) {
+            const colors = ['#ffffff', '#ffcccc', '#ccccff', '#ccffcc', '#ffffcc'];
+            const color = colors[index % colors.length] || '#ffffff';
+            
+            // Galaxy spiral
+            const armCount = 3;
+            for (let arm = 0; arm < armCount; arm++) {
+                const armAngle = (arm * Math.PI * 2 / armCount) + time * 0.01;
+                
+                for (let r = 2; r < size; r += 2) {
+                    const angle = armAngle + r * 0.1;
+                    const gx = x + Math.cos(angle) * r;
+                    const gy = y + Math.sin(angle) * r;
+                    
+                    ctx.fillStyle = color.replace(')', ', 0.6)').replace('rgb', 'rgba');
+                    ctx.beginPath();
+                    ctx.arc(gx, gy, 1, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            // Galaxy center
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, size * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function updateInfo() {
+            const level = levels[currentLevel];
+            document.getElementById('level-title').textContent = level.title;
+            document.getElementById('level-description').textContent = level.description;
+            
+            const factsHTML = '<strong>Cool Facts:</strong><br>' + 
+                level.facts.map(fact => '• ' + fact).join('<br>');
+            document.getElementById('level-facts').innerHTML = factsHTML;
+        }
+        
+        function animate() {
+            if (!isPaused) {
+                time += animationSpeed;
+            }
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background stars
+            drawStars();
+            
+            // Draw current level
+            switch(currentLevel) {
+                case 'earth':
+                    drawEarth();
+                    break;
+                case 'solar':
+                    drawSolarSystem();
+                    break;
+                case 'galaxy':
+                    drawGalaxy();
+                    break;
+                case 'universe':
+                    drawUniverse();
+                    break;
+            }
+            
+            // Auto tour logic
+            if (autoTour && !isPaused) {
+                const tourSteps = ['earth', 'solar', 'galaxy', 'universe'];
+                if (time % 300 < 5) { // Change every 5 seconds
+                    autoTourStep = (autoTourStep + 1) % tourSteps.length;
+                    setLevel(tourSteps[autoTourStep]);
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        function drawStars() {
+            // Background stars
+            for (let i = 0; i < 100; i++) {
+                const x = (i * 37) % canvas.width;
+                const y = (i * 73) % canvas.height;
+                const brightness = Math.sin(time * 0.01 + i) * 0.5 + 0.5;
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${brightness * 0.3})`;
+                ctx.beginPath();
+                ctx.arc(x, y, 1, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function setLevel(level) {
+            currentLevel = level;
+            updateInfo();
+            
+            // Update button styles
+            document.querySelectorAll('button').forEach(btn => {
+                btn.classList.remove('current-level');
+            });
+            document.getElementById(level).classList.add('current-level');
+        }
+        
+        // Event listeners
+        document.getElementById('earth').addEventListener('click', () => setLevel('earth'));
+        document.getElementById('solar').addEventListener('click', () => setLevel('solar'));
+        document.getElementById('galaxy').addEventListener('click', () => setLevel('galaxy'));
+        document.getElementById('universe').addEventListener('click', () => setLevel('universe'));
+        
+        document.getElementById('speed').addEventListener('input', (e) => {
+            animationSpeed = parseFloat(e.target.value);
+        });
+        
+        document.getElementById('auto').addEventListener('click', () => {
+            autoTour = !autoTour;
+            document.getElementById('auto').textContent = autoTour ? '⏹️ Stop Tour' : '🎬 Auto Tour';
+        });
+        
+        document.getElementById('pause').addEventListener('click', () => {
+            isPaused = !isPaused;
+            document.getElementById('pause').textContent = isPaused ? '▶️ Play' : '⏸️ Pause';
+        });
+        
+        // Initialize
+        updateInfo();
+        animate();
+    </script>
+</body>
+</html>
